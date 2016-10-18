@@ -1,4 +1,4 @@
-package freedoobie
+package doobie.freedoobie
 
 import java.sql.Connection
 

@@ -1,3 +1,5 @@
+package doobie
+
 import java.sql.Connection
 
 import cats.data.Kleisli

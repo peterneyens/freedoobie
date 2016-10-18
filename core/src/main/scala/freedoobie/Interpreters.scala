@@ -1,4 +1,4 @@
-package freedoobie
+package doobie.freedoobie
 
 import cats.~>
 import cats.data.Coproduct
@@ -22,6 +22,18 @@ object Interpreters {
   class PartiallyAppliedCombine[M[_]] {
     def apply[L <: HList](l: L)(implicit is: Interpreters[L, M]): is.Out = is(l)
   }
+
+
+  // def reorderCombine[CP[_]]: PartiallyAppliedReorderCombine[M] = new PartiallyAppliedReorderCombine[CP]
+
+  // class PartiallyAppliedReorderCombine[CP[_]] {
+  //    def apply[L <: HList, M <: HList](interpeters: L)(implicit 
+  //     thl: ToHList.Aux[CP, M],
+  //     select: shapeless.ops.hlist.SelectAll[L, M],
+  //     combine: Interpreters[M, ???] // monad interpreted to
+  //   ): combine.Out = combine(select(interpreters))   
+  // }
+
 
   implicit def interpreters0[F[_], H[_], M[_]](implicit 
     lift: LiftInterpreterConIOK[H, M]

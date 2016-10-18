@@ -11,9 +11,9 @@ import doobie.imports._
 import fs2.interop.cats._ // Monad[IOLite]
 import shapeless.{ ::, HNil }
 
-import freedoobie._
+import doobie.freedoobie._
 
-object AppUsingFree {
+object AppUsingFree extends App {
 
   // adts
 
@@ -104,8 +104,28 @@ object AppUsingFree {
   ds.setUser("postgres")
   ds.setPassword("")
 
-  val xa = MyDataSourceTransactor[IOLite](ds)
+  // val xa = MyDataSourceTransactor[IOLite](ds)
+
+  val xa = DriverManagerTransactor[IOLite](
+    // "org.postgresql.Driver",
+    "net.sf.log4jdbc.DriverSpy",
+    //"jdbc:postgresql:scalaexercises_test",
+    "jdbc:log4jdbc:postgresql:scalaexercises_test",
+    "scalaexercises_user",
+    "scalaexercises_pass")
+
 
   val appResult = ConIOK.execute(interpreted, xa)
+
+  println(appResult.unsafePerformIO)
  
+
+  // println("--------------------------")
+
+  // val t = for {
+  //   a <- sql"select random() * 100".query[Int].unique.transact(xa)
+  //   b <- sql"select random() * 100".query[Int].unique.transact(xa)
+  // } yield (a + b)
+
+  // println(t.unsafePerformIO)
 }
