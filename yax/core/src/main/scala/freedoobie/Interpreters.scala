@@ -1,8 +1,12 @@
 package doobie.freedoobie
 
+#+cats
 import cats.~>
 import cats.data.Coproduct
-import fs2.util.{ Catchable, Suspendable }
+#-cats
+#+scalaz
+import scalaz.{ ~>, Coproduct }
+#-scalaz
 import shapeless.{ DepFn1, HList, HNil, :: }
 
 
@@ -23,18 +27,6 @@ object Interpreters {
     def apply[L <: HList](l: L)(implicit is: Interpreters[L, M]): is.Out = is(l)
   }
 
-
-  // def reorderCombine[CP[_]]: PartiallyAppliedReorderCombine[M] = new PartiallyAppliedReorderCombine[CP]
-
-  // class PartiallyAppliedReorderCombine[CP[_]] {
-  //    def apply[L <: HList, M <: HList](interpeters: L)(implicit 
-  //     thl: ToHList.Aux[CP, M],
-  //     select: shapeless.ops.hlist.SelectAll[L, M],
-  //     combine: Interpreters[M, ???] // monad interpreted to
-  //   ): combine.Out = combine(select(interpreters))   
-  // }
-
-
   implicit def interpreters0[F[_], H[_], M[_]](implicit 
     lift: LiftInterpreterConIOK[H, M]
   ): Aux[(F ~> H) :: HNil, M, F ~> ConIOK[M, ?]] =
@@ -49,6 +41,12 @@ object Interpreters {
   ): Aux[(F ~> H) :: T, M, Coproduct[F, G, ?] ~> ConIOK[M, ?]] =
     new Interpreters[(F ~> H) :: T, M] {
       type Out = Coproduct[F, G, ?] ~> ConIOK[M, ?]
-      def apply(in: (F ~> H) :: T): Coproduct[F, G, ?] ~> ConIOK[M, ?] = lift(in.head) or ti(in.tail)
+      def apply(in: (F ~> H) :: T): Coproduct[F, G, ?] ~> ConIOK[M, ?] =
+#+cats
+        lift(in.head) or ti(in.tail)
+#-cats
+#+scalaz
+        λ[(Coproduct[F, G, ?] ~> ConIOK[M, ?])](_.run.fold(lift(in.head), ti(in.tail)))
+#-scalaz
     }
 }

@@ -1,6 +1,11 @@
 package doobie.freedoobie
 
+#+cats
 import cats.data.Coproduct
+#-cats
+#+scalaz
+import scalaz.Coproduct
+#-scalaz
 import shapeless.{ ::, HNil, HList }
 
 trait ToHList[F[_]] { type Out[_] <: HList }

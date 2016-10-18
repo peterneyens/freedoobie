@@ -26,33 +26,19 @@ lazy val commonSettings = Seq(
     "-Ypartial-unification"
   ),
   libraryDependencies ++= List(
-    "com.chuusai"    %% "shapeless"        % "2.3.1",
-    //"org.typelevel"  %% "cats"             % "0.7.2",
-    //"org.tpolecat"   %% "doobie-core-cats" % "0.3.1-SNAPSHOT",
-    "org.tpolecat"   %% "doobie-core-cats" % "0.3.1-M2"
-
-    //"org.postgresql"  % "postgresql"       % "9.4.1211",
-    //"com.googlecode.log4jdbc" % "log4jdbc" % "1.2",
-    //"oncue.journal"          %% "core"     % "2.2.1"
+    "com.chuusai"    %% "shapeless"        % "2.3.1"
   ),
   addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.9.0")
 )
 
-
-lazy val core = project.in(file("core"))
-  .settings(
-    name := "freedoobie",
-    buildSettings ++ commonSettings
-  )
-
-/*
 lazy val core = project.in(file("modules/core"))
   .settings(
     yax(file("yax/core"), "scalaz"),
     name := "freedoobie",
     buildSettings ++ commonSettings,
     libraryDependencies ++= Seq(
-      "org.tpolecat"        %% "doobie-core"       % "0.3.1-M2"
+      // locally published version with protected[doobie] transactor members
+      "org.tpolecat"        %% "doobie-core"       % "0.3.1-M2" 
     )
   )
 
@@ -62,22 +48,25 @@ lazy val core_cats = project.in(file("modules-cats/core"))
     name := "freedoobie-cats",
     buildSettings ++ commonSettings,
     libraryDependencies ++= Seq(
+      // locally published version with protected[doobie] transactor members
       "org.tpolecat"        %% "doobie-core-cats"  % "0.3.1-M2"
     )
   )
-*/
+
 
 lazy val example = project.in(file("example"))
   .settings(
     name := "freedoobie-example",
     buildSettings ++ commonSettings,
     libraryDependencies ++= List(
-      "org.postgresql"           % "postgresql"  % "9.4.1211",
-      "com.googlecode.log4jdbc"  % "log4jdbc"    % "1.2",
-      "oncue.journal"           %% "core"        % "2.2.1"
+      "org.postgresql"           % "postgresql"       % "9.4.1211",
+      "com.googlecode.log4jdbc"  % "log4jdbc"         % "1.2",
+      // "org.slf4j"                % "slf4j-api"        % "1.7.21",
+      "ch.qos.logback"           % "logback-classic"  % "1.1.7"
+      // "oncue.journal"           %% "core"             % "2.2.1"
     )
   )
-  .dependsOn(core)
+  .dependsOn(core_cats)
 
 
 cancelable in Global := true
