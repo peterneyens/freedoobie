@@ -54,17 +54,30 @@ lazy val core_cats = project.in(file("modules-cats/core"))
   )
 
 
-lazy val example = project.in(file("example"))
+lazy val exampleSettings = buildSettings ++ commonSettings ++ Seq(
+  libraryDependencies ++= List(
+    "org.postgresql"           % "postgresql"       % "9.4.1211",
+    "com.googlecode.log4jdbc"  % "log4jdbc"         % "1.2",
+    // "org.slf4j"                % "slf4j-api"        % "1.7.21",
+    "ch.qos.logback"           % "logback-classic"  % "1.1.7"
+    // "oncue.journal"           %% "core"             % "2.2.1"
+  )  
+)
+
+
+lazy val example = project.in(file("modules/example"))
   .settings(
+    yax(file("yax/example"), "scalaz"),
     name := "freedoobie-example",
-    buildSettings ++ commonSettings,
-    libraryDependencies ++= List(
-      "org.postgresql"           % "postgresql"       % "9.4.1211",
-      "com.googlecode.log4jdbc"  % "log4jdbc"         % "1.2",
-      // "org.slf4j"                % "slf4j-api"        % "1.7.21",
-      "ch.qos.logback"           % "logback-classic"  % "1.1.7"
-      // "oncue.journal"           %% "core"             % "2.2.1"
-    )
+    exampleSettings
+  )
+  .dependsOn(core)
+
+lazy val example_cats = project.in(file("modules-cats/example"))
+  .settings(
+    yax(file("yax/example"), "cats", "fs2"),
+    name := "freedoobie-example-cats",
+    exampleSettings
   )
   .dependsOn(core_cats)
 

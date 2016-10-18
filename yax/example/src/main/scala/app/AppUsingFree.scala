@@ -1,5 +1,6 @@
 package app
 
+#+cats
 import cats.~>
 import cats.data.Coproduct
 import cats.free.{ Free, Inject }
@@ -7,13 +8,24 @@ import cats.instances.int._
 import cats.instances.option._
 import cats.syntax.applicative._
 import cats.syntax.semigroup._
-import doobie.imports._
+#-cats
+#+fs2
 import fs2.interop.cats._ // Monad[IOLite]
+#-fs2
+#+scalaz
+import scalaz.{ ~>, Coproduct, Free, Inject }
+import scalaz.std.anyVal._
+import scalaz.std.option._
+import scalaz.syntax.applicative._
+import scalaz.syntax.semigroup._
+#-scalaz
 import shapeless.{ ::, HNil }
 
+import doobie.imports._
 import doobie.freedoobie._
 
-object AppUsingFree extends App {
+
+object AppUsingFree {
 
   // adts
 
@@ -91,8 +103,9 @@ object AppUsingFree extends App {
       _ <- Data.delete("key")
     } yield a |+| b
 
-
+#+cats
   implicit val RecursiveTailRecMConIOK = cats.RecursiveTailRecM.create[ConIOK[IOLite, ?]]  // ??
+#-cats
 
   val interpreted = prgrm1.foldMap(interpreter)
 
@@ -117,15 +130,27 @@ object AppUsingFree extends App {
 
   val appResult = ConIOK.execute(interpreted, xa)
 
-  println(appResult.unsafePerformIO)
- 
-
-  // println("--------------------------")
-
-  // val t = for {
+  // val twoTransactions = for {
   //   a <- sql"select random() * 100".query[Int].unique.transact(xa)
   //   b <- sql"select random() * 100".query[Int].unique.transact(xa)
   // } yield (a + b)
 
-  // println(t.unsafePerformIO)
+  def main(args: Array[String]): Unit = {
+    println(appResult.unsafePerformIO)
+    // println("--------------------------")
+    // println(twoTransactions.unsafePerformIO)
+  }
+
+
+#+scalaz
+  implicit class FreeInjectScalaz(free: Free.type) {
+    def inject[F[_], G[_]] = new PartiallyAppliedInject[F, G] 
+
+    class PartiallyAppliedInject[F[_], G[_]] {
+      def apply[A](fa: F[A])(implicit inj: Inject[F, G]): Free[G, A] =
+        Free.liftF(inj(fa))
+    }
+  }
+#-scalaz
+
 }
